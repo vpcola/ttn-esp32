@@ -2781,7 +2781,7 @@ void LMIC_reset (void) {
     do {
         lmic_client_data_t  client = LMIC.client;
 
-        os_clearMem((xref2u1_t)&LMIC,SIZEOFEXPR(LMIC));
+        //os_clearMem((xref2u1_t)&LMIC,SIZEOFEXPR(LMIC));
 
         LMIC.client = client;
     } while (0);
