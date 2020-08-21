@@ -35,6 +35,7 @@
 
 #include "oslmic.h"
 #include "lorabase.h"
+#include <stdbool.h>
 
 #if LMIC_DEBUG_LEVEL > 0 || LMIC_X_DEBUG_LEVEL > 0
 # if defined(LMIC_DEBUG_INCLUDE)
@@ -672,6 +673,7 @@ void  LMIC_unjoinAndRejoin (void);
 void  LMIC_shutdown     (void);
 void  LMIC_init         (void);
 void  LMIC_reset        (void);
+void  LMIC_resetc       (bool doNotDelete);
 void  LMIC_clrTxData    (void);
 void  LMIC_setTxData    (void);
 void  LMIC_setTxData_strict(void);
