@@ -32,6 +32,7 @@
 #define LMIC_DR_LEGACY 0
 #include "lmic_bandplan.h"
 #include "esp_sleep.h"
+#include "esp_attr.h"
 
 #if defined(DISABLE_BEACONS) && !defined(DISABLE_PING)
 #error Ping needs beacon tracking
