@@ -31,12 +31,13 @@
 //! \file
 #define LMIC_DR_LEGACY 0
 #include "lmic_bandplan.h"
+#include "esp_sleep.h"
 
 #if defined(DISABLE_BEACONS) && !defined(DISABLE_PING)
 #error Ping needs beacon tracking
 #endif
 
-DEFINE_LMIC;
+RTC_DATA_ATTR DEFINE_LMIC;
 
 // Fwd decls.
 static void reportEventNoUpdate(ev_t);
