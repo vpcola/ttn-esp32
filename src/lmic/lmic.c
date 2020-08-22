@@ -31,12 +31,14 @@
 //! \file
 #define LMIC_DR_LEGACY 0
 #include "lmic_bandplan.h"
+#include "esp_sleep.h"
+#include "esp_attr.h"
 
 #if defined(DISABLE_BEACONS) && !defined(DISABLE_PING)
 #error Ping needs beacon tracking
 #endif
 
-DEFINE_LMIC;
+RTC_DATA_ATTR DEFINE_LMIC;
 
 // Fwd decls.
 static void reportEventNoUpdate(ev_t);
@@ -2764,11 +2766,16 @@ void LMIC_shutdown (void) {
     LMIC.opmode |= OP_SHUTDOWN;
 }
 
+void LMIC_reset(void) {
+	LMIC_resetc(false);
+}
+
+
 // reset the LMIC. This is called at startup; the clear of LMIC.osjob
 // only works because the LMIC is guaranteed to be zero in that case.
 // But it's also called at frame-count rollover; in that case we have
 // to ensure that the user callback pointers are not clobbered.
-void LMIC_reset (void) {
+void LMIC_resetc (bool doNotDelete) {
     EV(devCond, INFO, (e_.reason = EV::devCond_t::LMIC_EV,
                        e_.eui    = MAIN::CDEV->getEui(),
                        e_.info   = EV_RESET));
@@ -2779,7 +2786,14 @@ void LMIC_reset (void) {
     do {
         lmic_client_data_t  client = LMIC.client;
 
-        os_clearMem((xref2u1_t)&LMIC,SIZEOFEXPR(LMIC));
+        if(doNotDelete)
+        {
+        	//noop
+        }
+        else
+        {
+        	os_clearMem((xref2u1_t)&LMIC,SIZEOFEXPR(LMIC));
+        }
 
         LMIC.client = client;
     } while (0);

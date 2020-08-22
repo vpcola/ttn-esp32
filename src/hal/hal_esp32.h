@@ -66,6 +66,7 @@ private:
     static void dioIrqHandler(void* arg);
     static void timerCallback(void *arg);
     static int64_t osTimeToEspTime(int64_t espNow, uint32_t osTime);
+    static int64_t esp_timer_get_linux_time(void);
 
     void ioInit();
     void spiInit();

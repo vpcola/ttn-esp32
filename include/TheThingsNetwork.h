@@ -180,7 +180,7 @@ public:
      * To restart communication, join() must be called.
      * It neither clears the provisioned keys nor the configured pins.
      */
-    void reset();
+    void reset(bool doNotDelete = false);
 
     /**
      * @brief Configures the pins used to communicate with the LoRaWAN radio chip.

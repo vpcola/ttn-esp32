@@ -19,6 +19,8 @@
 #include "driver/spi_master.h"
 #include "driver/timer.h"
 #include "esp_log.h"
+#include <time.h>
+#include <sys/time.h>
 
 #define LMIC_UNUSED_PIN 0xff
 
@@ -235,6 +237,17 @@ void HAL_ESP32::spiRead(uint8_t cmd, uint8_t *buf, size_t len)
  * schedule the next LMIC job.
  */
 
+
+
+
+int64_t HAL_ESP32::esp_timer_get_linux_time(void)
+{
+    struct timeval ts_now;
+    gettimeofday(&ts_now, NULL);
+    return ((int64_t)ts_now.tv_sec * 1000000L) + ((int64_t)ts_now.tv_usec);
+}
+
+
 // Convert LMIC tick time (ostime_t) to ESP absolute time.
 // `osTime` is assumed to be somewhere between one hour in the past and
 // 18 hours into the future. 
@@ -285,7 +298,7 @@ void HAL_ESP32::armTimer(int64_t espNow)
 {
     if (nextAlarm == 0)
         return;
-    int64_t timeout = nextAlarm - esp_timer_get_time();
+    int64_t timeout = nextAlarm - esp_timer_get_linux_time();
     if (timeout < 0)
         timeout = 10;
     esp_timer_start_once(timer, timeout);
@@ -345,12 +358,21 @@ bool HAL_ESP32::wait(WaitKind waitKind)
     }
 }
 
+
+
+int64_t esp_timer_get_linux_time(void)
+{
+    struct timeval ts_now;
+    gettimeofday(&ts_now, NULL);
+    return ((int64_t)ts_now.tv_sec * 1000000L) + ((int64_t)ts_now.tv_usec);
+}
+
 // Gets current time in LMIC ticks
 u4_t hal_ticks()
 {
     // LMIC tick unit: 16µs
     // esp_timer unit: 1µs
-    return (u4_t)(esp_timer_get_time() >> 4);
+    return (u4_t)(esp_timer_get_linux_time() >> 4);
 }
 
 // Wait until the specified time.
@@ -363,7 +385,7 @@ u4_t hal_waitUntil(u4_t time)
 
 uint32_t HAL_ESP32::waitUntil(uint32_t osTime)
 {
-    int64_t espNow = esp_timer_get_time();
+    int64_t espNow = esp_timer_get_linux_time();
     int64_t espTime = osTimeToEspTime(espNow, osTime);
     setNextAlarm(espTime);
     armTimer(espNow);
@@ -392,7 +414,7 @@ u1_t hal_checkTimer(uint32_t time)
 
 uint8_t HAL_ESP32::checkTimer(u4_t osTime)
 {
-    int64_t espNow = esp_timer_get_time();
+    int64_t espNow = esp_timer_get_linux_time();
     int64_t espTime = osTimeToEspTime(espNow, osTime);
     int64_t diff = espTime - espNow;
     if (diff < 100)
@@ -414,7 +436,7 @@ void HAL_ESP32::sleep()
     if (wait(CHECK_IO))
         return;
 
-    armTimer(esp_timer_get_time());
+    armTimer(esp_timer_get_linux_time());
     wait(WAIT_FOR_ANY_EVENT);
 }
 

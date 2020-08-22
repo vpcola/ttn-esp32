@@ -103,17 +103,17 @@ void TheThingsNetwork::configurePins(spi_host_device_t spi_host, uint8_t nss, ui
     LMIC_registerRxMessageCb(messageReceivedCallback, nullptr);
 
     os_init_ex(nullptr);
-    reset();
+    reset(true);
 
     lmicEventQueue = xQueueCreate(4, sizeof(TTNLmicEvent));
     ASSERT(lmicEventQueue != nullptr);
     ttn_hal.startLMICTask();
 }
 
-void TheThingsNetwork::reset()
+void TheThingsNetwork::reset(bool doNotDelete)
 {
     ttn_hal.enterCriticalSection();
-    LMIC_reset();
+    LMIC_resetc(doNotDelete);
     LMIC_setClockError(MAX_CLOCK_ERROR * 4 / 100);
     waitingReason = eWaitingNone;
     ttn_hal.leaveCriticalSection();
