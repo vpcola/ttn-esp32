@@ -109,6 +109,8 @@ void hal_sleep (void);
  */
 u4_t hal_ticks (void);
 
+int64_t esp_timer_get_linux_time(void);
+
 /*
  * busy-wait until specified timestamp (in ticks) is reached. If on-time, return 0,
  * otherwise return the number of ticks we were late.
