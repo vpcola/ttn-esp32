@@ -205,6 +205,8 @@ bool TheThingsNetwork::join()
 
 bool TheThingsNetwork::joinCore()
 {
+	uint8_t hasJoined;
+	
     if (!provisioning.haveKeys())
     {
         ESP_LOGW(TAG, "Device EUI, App EUI and/or App key have not been provided");
@@ -214,13 +216,23 @@ bool TheThingsNetwork::joinCore()
     ttn_hal.enterCriticalSection();
     xQueueReset(lmicEventQueue);
     waitingReason = eWaitingForJoin;
-    LMIC_startJoining();
-    ttn_hal.wakeUp();
+    hasJoined = LMIC_startJoining();
+	if (hasJoined == 0)	{
+		waitingReason = eWaitingNone;
+	}
+	ttn_hal.wakeUp(); // Run the LMIC loop to receive join ack
     ttn_hal.leaveCriticalSection();
 
-    TTNLmicEvent event;
-    xQueueReceive(lmicEventQueue, &event, portMAX_DELAY);
-    return event.event == eEvtJoinCompleted;
+	ESP_LOGI(TAG, "Device has previously joined? : %s", (hasJoined == 0) ? "Yes":"No" );
+	
+	if (hasJoined == 1) // If join request is sent, we need to receive the join reply
+	{
+		TTNLmicEvent event;
+		xQueueReceive(lmicEventQueue, &event, portMAX_DELAY);
+		return event.event == eEvtJoinCompleted;
+	}
+	
+	return true;
 }
 
 TTNResponseCode TheThingsNetwork::transmitMessage(const uint8_t *payload, size_t length, port_t port, bool confirm)
