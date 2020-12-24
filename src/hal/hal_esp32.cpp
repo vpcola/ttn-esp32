@@ -112,6 +112,22 @@ void HAL_ESP32::ioInit()
     ESP_LOGI(TAG, "IO initialized");
 }
 
+void HAL_ESP32::ioDeInit()
+{
+	// Reset GPIO pins to reset state
+	gpio_reset_pin(pinNSS);
+	if (pinRst != LMIC_UNUSED_PIN)
+		gpio_reset_pin(pinRst);
+	if (pinRxTx != LMIC_UNUSED_PIN)
+		gpio_reset_pin(pinRxTx);
+		
+	gpio_reset_pin(pinDIO0);
+	gpio_reset_pin(pinDIO1);
+	
+	ESP_LOGI(TAG, "IO de-initialized");	
+}
+
+	
 void hal_pin_rxtx(u1_t val)
 {
     if (ttn_hal.pinRxTx == LMIC_UNUSED_PIN)
@@ -186,9 +202,16 @@ void HAL_ESP32::spiInit()
     esp_err_t ret = spi_bus_add_device(spiHost, &spiConfig, &spiHandle);
     ESP_ERROR_CHECK(ret);
 
-    ESP_LOGI(TAG, "SPI initialized");
+    ESP_LOGI(TAG, "SPI device initialized");
 }
 
+void HAL_ESP32::spiDeInit()
+{
+	  // Remove device from SPI bus
+	  spi_bus_remove_device(spiHandle);		
+	  ESP_LOGI(TAG, "SPI device removed");
+}
+	
 void hal_spi_write(u1_t cmd, const u1_t *buf, size_t len)
 {
     ttn_hal.spiWrite(cmd, buf, len);
@@ -504,6 +527,21 @@ void HAL_ESP32::init()
     spiInit();
     // configure timer and alarm callback
     timerInit();
+    
+    ESP_LOGI(TAG, "Device Initialized");
+}
+
+
+void HAL_ESP32::shutdown()
+{
+		// This function should be called after stopLMICTask()
+		
+		// In reverse order opposed to init()
+		// timerDeInit();
+		spiDeInit();
+		ioDeInit();
+		
+		ESP_LOGI(TAG, "Shutdown completed");
 }
 
 void HAL_ESP32::startLMICTask()

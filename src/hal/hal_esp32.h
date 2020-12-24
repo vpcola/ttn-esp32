@@ -51,6 +51,8 @@ public:
     uint8_t checkTimer(uint32_t osTime);
     void sleep();
     
+    void shutdown();
+    
     uint32_t waitUntil(uint32_t osTime);
 
     spi_host_device_t spiHost;
@@ -69,7 +71,9 @@ private:
     static int64_t esp_timer_get_linux_time(void);
 
     void ioInit();
+    void ioDeInit();
     void spiInit();
+    void spiDeInit();
     void timerInit();
 
     void setNextAlarm(int64_t time);

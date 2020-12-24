@@ -126,6 +126,10 @@ void TheThingsNetwork::shutdown()
     ttn_hal.stopLMICTask();
     waitingReason = eWaitingNone;
     ttn_hal.leaveCriticalSection();
+    
+    // Call HAL shutdown to set GPIO pins for sleep/shutdown
+    // and disconnect the SPI bus
+    ttn_hal.shutdown();
 }
 
 void TheThingsNetwork::startup()
