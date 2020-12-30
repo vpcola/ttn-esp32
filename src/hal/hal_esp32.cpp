@@ -82,6 +82,7 @@ void HAL_ESP32::ioInit()
     ASSERT(pinDIO0 != LMIC_UNUSED_PIN);
     ASSERT(pinDIO1 != LMIC_UNUSED_PIN);
 
+
     gpio_pad_select_gpio(pinNSS);
     gpio_set_level(pinNSS, 0);
     gpio_set_direction(pinNSS, GPIO_MODE_OUTPUT);
@@ -116,14 +117,16 @@ void HAL_ESP32::ioDeInit()
 {
 	// Reset GPIO pins to reset state
 	gpio_reset_pin(pinNSS);
+	
 	if (pinRst != LMIC_UNUSED_PIN)
 		gpio_reset_pin(pinRst);
 	if (pinRxTx != LMIC_UNUSED_PIN)
 		gpio_reset_pin(pinRxTx);
-		
+
 	gpio_reset_pin(pinDIO0);
 	gpio_reset_pin(pinDIO1);
-	
+
+
 	ESP_LOGI(TAG, "IO de-initialized");	
 }
 
